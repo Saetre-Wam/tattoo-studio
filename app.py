@@ -2,6 +2,8 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 from datetime import date
+import qrcode
+from io import BytesIO
 
 USUARIO_ADMIN = "admin"
 SENHA_ADMIN = "1234"
@@ -164,9 +166,26 @@ elif menu == "Solicitar Agendamento":
 
     valor_estimado = calcular_valor(servico, tamanho)
     sinal = valor_estimado * 0.30
-
     st.info(f"Valor estimado: R$ {valor_estimado:.2f}")
     st.warning(f"Sinal sugerido: R$ {sinal:.2f}")
+
+    chave_pix = "+551193212431"
+
+    pix_texto = f"""
+PIX - Tattoo Studio
+Chave: {chave_pix}
+Valor do sinal: R$ {sinal:.2f}
+Cliente: {nome}
+Serviço: {servico}
+"""
+
+    qr = qrcode.make(pix_texto)
+    buffer = BytesIO()
+    qr.save(buffer, format="PNG")
+
+    st.subheader("Pagamento do Sinal via PIX")
+    st.image(buffer, caption="QR Code PIX para pagamento do sinal", width=250)
+    st.code(pix_texto)
 
     if st.button("Confirmar Agendamento"):
         if nome and telefone:
@@ -193,6 +212,7 @@ elif menu == "Solicitar Agendamento":
             st.success("Agendamento realizado com sucesso!")
         else:
             st.error("Preencha nome e telefone.")
+            conexao.commit()
 
 elif menu == "Portfólio":
     st.title("Portfólio do Estúdio")
@@ -228,7 +248,7 @@ elif menu == "Área Admin":
         st.stop()
 
     st.success("Você está logado como administrador.")
-    
+
     st.title("Agendamentos Registrados")
 
     cursor.execute("""
