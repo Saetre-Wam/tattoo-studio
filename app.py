@@ -6,23 +6,8 @@ from datetime import date
 USUARIO_ADMIN = "admin"
 SENHA_ADMIN = "1234"
 
-if "logado" not in st.session_state:
-    st.session_state.logado = False
-
-if not st.session_state.logado:
-    st.title("Login - Tattoo Studio")
-
-    usuario = st.text_input("Usuário")
-    senha = st.text_input("Senha", type="password")
-
-    if st.button("Entrar"):
-        if usuario == USUARIO_ADMIN and senha == SENHA_ADMIN:
-            st.session_state.logado = True
-            st.rerun()
-        else:
-            st.error("Usuário ou senha incorretos.")
-
-    st.stop()
+if "admin_logado" not in st.session_state:
+    st.session_state.admin_logado = False
 
 st.set_page_config(page_title="Tattoo Studio", page_icon="🖤", layout="wide")
 
@@ -83,7 +68,7 @@ st.sidebar.title("🖤 Tattoo Studio")
 
 menu = st.sidebar.radio(
     "Menu",
-    ["Início", "Agendar Horário", "Portfólio", "Agendamentos", "IA Atendimento"]
+    ["Início", "Portfólio", "Solicitar Agendamento", "IA Atendimento", "Área Admin"]
 )
 
 def calcular_valor(servico, tamanho):
@@ -146,7 +131,7 @@ if menu == "Início":
 
     st.write("Aplicativo web para gerenciamento de agendamentos, orçamento e portfólio de estúdio de tatuagem.")
 
-elif menu == "Agendar Horário":
+elif menu == "Solicitar Agendamento":
     st.title("Agendar Horário")
 
     nome = st.text_input("Nome do cliente")
@@ -226,7 +211,24 @@ elif menu == "Portfólio":
         st.image("imagens/tattoo3.jpg", width="stretch")
         st.write("Old School")
 
-elif menu == "Agendamentos":
+elif menu == "Área Admin":
+    st.title("Área Admin")
+
+    if not st.session_state.admin_logado:
+        usuario = st.text_input("Usuário")
+        senha = st.text_input("Senha", type="password")
+
+        if st.button("Entrar"):
+            if usuario == USUARIO_ADMIN and senha == SENHA_ADMIN:
+                st.session_state.admin_logado = True
+                st.rerun()
+            else:
+                st.error("Usuário ou senha incorretos.")
+
+        st.stop()
+
+    st.success("Você está logado como administrador.")
+    
     st.title("Agendamentos Registrados")
 
     cursor.execute("""
